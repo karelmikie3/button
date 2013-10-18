@@ -4,7 +4,7 @@ function createButtons(name)
  return buttonTable
 end
 
-function addButton(bt,name,x,y,w,h,state,v)
+function addButton(bt,name,x,y,w,h,state,v,ca,cia)
  if state == nil then
   state = false
  end
@@ -16,6 +16,8 @@ function addButton(bt,name,x,y,w,h,state,v)
  ["bw"] = w,
  ["by"] = y,
  ["bh"] = h,
+ ["coloractive"] = ca,
+ ["colorinactive"] = cia,
  }
  table.insert(bt, tbt)
  return bt
@@ -25,9 +27,17 @@ function buttonEvent(bt)
  for i in ipairs(bt) do
   if bt[i]["visi"] then
    if bt[i]["state"] == true then
-    color = colors.lime
+    if bt[i]["coloractive"] then
+	 color = bt[i]["coloractive"]
+	else
+	 color = colors.lime
+	end
    else 
-    color = colors.red
+    if bt[i]["coloractive"] then
+	 color = bt[i]["colorinactive"]
+	else
+     color = colors.red
+	end
    end
    local x,y = bt[i]["bx"],bt[i]["by"]
    local w,h = bt[i]["bw"]-1,bt[i]["bh"]-1
