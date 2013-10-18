@@ -1,148 +1,58 @@
-term.clear()
+local buttonTable = {}
 
-local state = false
+function createButtons(name)
+ return buttonTable
+end
 
-local mfsu = peripheral.wrap("mfsu_1") or
-error("unable to wrap the MFSU!",0)
+function addButton(bt,name,x,y,w,h,state,v)
+ if state == nil then
+  state = false
+ end
+ local tbt = {
+ ["state"] = state,
+ ["name"] = name,
+ ["visi"] = v,
+ ["bx"] = x,
+ ["bw"] = w,
+ ["by"] = y,
+ ["bh"] = h,
+ }
+ table.insert(bt, tbt)
+ return bt
+end
 
-local et = peripheral.wrap("ender_tank_0") or
-error("unable to wrap the ENDERTANK",0)
-
-os.loadAPI("buttonAPI")
-
-mp = buttonAPI.createButtons()
-mp = buttonAPI:addButton("IC2",1,1,3,1,false,true)
-mp = buttonAPI:addButton("MFSU",12,1,6,1,false,false)
-
-mp = buttonAPI:addButton("ENDERTANK",1,3,9,1,false,true)
-mp = buttonAPI:addButton("ET1",12,1,5,1,false,false)
-
-function lStates()
- while true do
-  sleep(.00001)
-  if mp[4]["state"] then
-   lt = device.getTankInfo("NORTH")
-   term.setCursorPos(20,1)
-   print("Liquid name: "..lt[1]["name"])
-   liProcent = math.floor((lt[1]["amount"]/lt[1]["capacity"])*100)
-   term.setCursorPos(20,2)
-   print("                                                      ")
-   term.setCursorPos(20,2)
-   write("Liquid amount: ")
-   if liProcent >= 75 then
-    term.setTextColor(colors.green)
-   elseif liProcent <= 25 then
-    term.setTextColor(colors.red)
-   elseif liProcent < 75 then
-    term.setTextColor(colors.orange)
+function buttonEvent(bt)
+ for i in ipairs(bt) do
+  if bt[i]["visi"] then
+   if bt[i]["state"] == true then
+    color = colors.lime
+   else 
+    color = colors.red
    end
-   write(lt[1]["amount"])
-   term.setTextColor(colors.white)
-   print("/"..lt[1]["capacity"])
-   term.setCursorPos(20,3)
-   write("Liquid in procent: ")
-   if liProcent >= 75 then
-    term.setTextColor(colors.green)
-   elseif liProcent <= 25 then
-    term.setTextColor(colors.red)
-   elseif liProcent < 75 then
-    term.setTextColor(colors.orange)
+   local x,y = bt[i]["bx"],bt[i]["by"]
+   local w,h = bt[i]["bw"]-1,bt[i]["bh"]-1
+   for xpos = x,(x+w) do
+    for ypos = y,(y+h) do
+     paintutils.drawPixel(xpos,ypos,color)
+    end
+    term.setCursorPos((x+(w/2+1))-#bt[i]["name"]/2,(y+(h/2)))
+    print(bt[i]["name"])
    end
-   print(liProcent.."%")
-   term.setTextColor(colors.white)
+   term.setBackgroundColor(colors.black)
   end
  end
-end
-
-function eStates()
+ 
  while true do
-  sleep(.00001)
-  if mp[2]["state"] then
-   eiProcent = math.floor((device.getEUStored()/device.getEUCapacity())*100)
-   term.setCursorPos(20,1)
-   print("                                                      ")
-   term.setCursorPos(20,1)
-   write("Energy: ")
-   if eiProcent >= 75 then
-    term.setTextColor(colors.green)
-   elseif eiProcent <= 25 then
-    term.setTextColor(colors.red)
-   elseif eiProcent < 75 then
-    term.setTextColor(colors.orange)
+  event,mbutton,x,y = os.pullEvent("mouse_click")
+  
+  for i = 1, #bt do
+   if bt[i]["visi"] then
+    if x >= bt[i]["bx"] and x <= bt[i]["bx"] + bt[i]["bw"]-1 then
+     if y >= bt[i]["by"] and y <= bt[i]["by"] + bt[i]["bh"]-1 then
+       return bt[i]["name"], bt[i]["state"]
+     end 
+    end
    end
-   write(device.getEUStored())
-   term.setTextColor(colors.white)
-   write("/"..device.getEUCapacity().." EU")
-   term.setCursorPos(20,2)
-   print("Safe EU per tick: "..device.getMaxSafeEUInput().." EU")
-   term.setCursorPos(20,3)
-   print("Offered EU per tick: "..device.getOfferedEnergy().." EU")
-   term.setCursorPos(20,4)
-   print("                                                      ")
-   term.setCursorPos(20,4)
-   write("Energy in procent: ")
-   if eiProcent >= 75 then
-    term.setTextColor(colors.green)
-   elseif eiProcent <= 25 then
-    term.setTextColor(colors.red)
-   elseif eiProcent < 75 then
-    term.setTextColor(colors.orange)
-   end
-   write(eiProcent.."%")
-   term.setTextColor(colors.white)
   end
  end
-end
-
-
-function menu()
- while true do
-  name = nil
-  state = nil
-  sleep(.0001)
-  term.clear()
-  name,state = buttonAPI.buttonEvent(mp)
-  if name == "IC2" then
-   mp[1]["state"] = not mp[1]["state"]
-   if name == "IC2" and mp[1]["state"] then
-    mp[2]["visi"] = true
-    mp[3]["state"] = false
-	mp[4]["state"] = false
-	mp[4]["visi"] = false
-    device = nothing
-   end
-  end
-  if name == "MFSU" then
-   mp[2]["state"] = not mp[2]["state"]
-   if mp[2]["state"] then
-    device = mfsu
-   end
-  end
-  if name == "ENDERTANK" then
-   mp[3]["state"] = not mp[3]["state"]
-   if name == "ENDERTANK" and mp[3]["state"] then
-    mp[2]["state"] = false
-    mp[2]["visi"] = false
-    mp[1]["state"] = false
-	mp[4]["visi"] = true
-    device = nothing
-   end
-  end
-  if name == "ET1" then
-   mp[4]["state"] = not mp[4]["state"]
-   if name == "ET1" and mp[4]["state"] then
-    device = et
-   end
-  end
-  if name == "IC2" and not mp[1]["state"] then
-   mp[2]["visi"] = false
-   mp[2]["state"] = false
-   device = nothing
-  end
- end 
-end
-
-while true do
- sleep(.0000001)
- parallel.waitForAll(menu,eStates,lStates)
 end
