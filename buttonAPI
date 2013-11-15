@@ -1,6 +1,6 @@
 local buttonTable = {}
 
-function createButtons(name)
+function createButtons()
  return buttonTable
 end
 
@@ -24,31 +24,35 @@ function addButton(bt,name,x,y,w,h,state,v,ca,cia)
 end
 
 function buttonEvent(bt)
- for i in ipairs(bt) do
-  if bt[i]["visi"] then
-   if bt[i]["state"] == true then
-    if bt[i]["coloractive"] then
-	 color = bt[i]["coloractive"]
-	else
-	 color = colors.lime
-	end
-   else 
-    if bt[i]["coloractive"] then
-	 color = bt[i]["colorinactive"]
-	else
-     color = colors.red
-	end
-   end
-   local x,y = bt[i]["bx"],bt[i]["by"]
-   local w,h = bt[i]["bw"]-1,bt[i]["bh"]-1
-   for xpos = x,(x+w) do
-    for ypos = y,(y+h) do
-     paintutils.drawPixel(xpos,ypos,color)
+ if term.isColor() then
+  for i in ipairs(bt) do
+   if bt[i]["visi"] then
+    if bt[i]["state"] == true then
+     if bt[i]["coloractive"] then 
+ 	  color = bt[i]["coloractive"]
+ 	 else
+ 	  color = colors.lime
+     end
+    else 
+     if bt[i]["coloractive"] then
+	  color = bt[i]["colorinactive"]
+	 else
+      color = colors.red
+	 end
     end
-    term.setCursorPos((x+(w/2+1))-#bt[i]["name"]/2,(y+(h/2)))
-    print(bt[i]["name"])
+    local x,y = bt[i]["bx"],bt[i]["by"]
+    local w,h = bt[i]["bw"]-1,bt[i]["bh"]-1
+    for xpos = x,(x+w) do
+     for ypos = y,(y+h) do
+      paintutils.drawPixel(xpos,ypos,color)
+     end
+     term.setCursorPos((x+(w/2+1))-#bt[i]["name"]/2,(y+(h/2)))
+     print(bt[i]["name"])
+    end
+    term.setBackgroundColor(colors.black)
    end
-   term.setBackgroundColor(colors.black)
+  else
+   error("screen is not color",0)
   end
  end
  
