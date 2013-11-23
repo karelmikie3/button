@@ -51,9 +51,9 @@ function buttonEvent(bt)
     end
     term.setBackgroundColor(colors.black)
    end
-  else
-   error("screen is not color",0)
   end
+ else
+  error("screen is not color",0)
  end
  
  while true do
